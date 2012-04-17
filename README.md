@@ -11,7 +11,7 @@ Here is a wikipedia [link](http://en.wikipedia.org/wiki/Hidato) about it.
 This is a hidato solver program it contain two files.
 
 hidato-solver.rkt - It solve a square shape hidato puzzle and
-draw an image of the solution on the repl.
+draw an image of the solution on the repl.  
 hidato-solver-hex.rkt - It solve a hexagon shape hidato puzzle
 and draw an image of the solution on the repl.
 
