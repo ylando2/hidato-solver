@@ -200,7 +200,7 @@
             (cons c acc)
             (loop (remove-choices2 (cdr one-path) (remove-one-path-rec c (car one-path) nums)) (cons one-path acc))))))
 
-;;If a there is a number in the board,
+;;If there is a number in the board,
 ;;that do not have any path. It return true.
 ;;This is a way to know that it have to try other ways.
 (define (fail? choices)
