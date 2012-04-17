@@ -180,7 +180,7 @@
                       (cdr choices)) ;;If it discover that it fail stop.
               (loop (cdr choices) (cons new-choice acc)))))))
 
-;;Turn the choices for the path that start at n to solve ones.
+;;Turn the choices for the path that start at n to solved ones.
 ;;This is done so it will not remove its paths and
 ;;calculate it as failure.
 (define (remove-one-path-rec choices n nums)
