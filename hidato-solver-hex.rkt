@@ -15,7 +15,6 @@
 (define HOLE 2000) ;; Put a big number here, bigger then the greatest number on the board.
 
 (define BASE-SIZE 6)
-(define MAX-SIZE 11)
 (define *puzzle* 
   '(
          00 00 00 00 00 00
@@ -28,8 +27,15 @@
       00 00 00 22 00 25 27 00 00
        00 00 00 21 01 00 00 00
         00 16 00 12 08 00 00
-         00 00 00 00 00 00
+         00 00 00 00 00 00 
          ))
+
+(define (puzzle-max-size puzzle base-size)
+  (let ([res (sqrt (+ (length puzzle) (- (sqr base-size) base-size)))])
+    (if (integer? res)
+        (inexact->exact res)
+        (error "Error in the number of numbers of the puzzle or the base size"))))
+        
 
 ;;Pad the puzzle to fit a square shape.
 (define (square-shape puzzle base-size max-size)
@@ -386,10 +392,11 @@
     (bitmap target)))
 
 (time
- (let ([board (build-board *puzzle* BASE-SIZE MAX-SIZE)])
+ (let* ([max-size (puzzle-max-size *puzzle* BASE-SIZE)]
+        [board (build-board *puzzle* BASE-SIZE max-size)])
    (vc-append
-   (hc-append (blank 200 10) (draw-solution board 20 BASE-SIZE MAX-SIZE))
+   (hc-append (blank 200 10) (draw-solution board 20 BASE-SIZE max-size))
    (blank 10 50)
    (begin
-     (solve board MAX-SIZE)
-     (hc-append (blank 200 10) (draw-solution board 20 BASE-SIZE MAX-SIZE))))))
+     (solve board max-size)
+     (hc-append (blank 200 10) (draw-solution board 20 BASE-SIZE max-size))))))
