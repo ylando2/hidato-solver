@@ -250,30 +250,34 @@
           (when (= v len) (vector-set! board (cdr k) (car k))))))))
 
 ;;Solve the puzzle.
-(define (solve board col-num)
-     (let* ([nums (puzzle-numbers board)]
-            [col-num+2 (+ 2 col-num)]
-          [choices (every-choice board col-num+2 nums 6)])
-     (update-board board (cdr (solve-one-path choices nums '())) )
-     (update-num-in-all-paths board choices nums)
-     (let* ([nums (puzzle-numbers board)]
-            [choices (every-choice board col-num+2 nums 6)])
-       (update-board board (cdr (solve-one-path choices nums '())))  
-       (let* ([nums (puzzle-numbers board)]
-              [choices (every-choice board col-num+2 nums HOLE)]
-              [nums- (but-last-rec nums)]
-              [nums.choices (map (lambda (x y) (cons x y)) nums- choices)]
-              [nums.choices- (filter (lambda (x) (not (and (length=1 (cdr x)) (null? (cadr x))))) nums.choices)]
-              [sorted (sort nums.choices- 
-                            (lambda (x y)
-                              (let ([len1 (length (cdr x))]
-                                    [len2 (length (cdr y))])
-                                (if (= len1 len2)
-                                    (> (length (car (cdr x))) (length (car (cdr y))))
-                                    (< len1 len2)))))]
-              [nums2 (map car sorted)]
-              [choices2 (map cdr sorted)])
-         (update-board board (solve-all choices2 nums2 '()))))))
+(define (solve board max-size)
+  (let ([col-num+2 (+ 2 max-size)])
+    (let loop ()
+      (let* ([nums (puzzle-numbers board)]
+             [choices (every-choice board col-num+2 nums 6)]
+             [sol (cdr (solve-one-path choices nums '()))])
+        (unless (null? sol)
+          (update-board board sol)
+          (let* ([nums (puzzle-numbers board)]
+                 [choices (every-choice board col-num+2 nums 6)])
+            (update-num-in-all-paths board choices nums)
+            (loop)))))
+    (let* ([nums (puzzle-numbers board)] 
+           [choices (every-choice board col-num+2 nums HOLE)]
+           [nums- (but-last-rec nums)]
+           [nums.choices (map (lambda (x y) (cons x y)) nums- choices)]
+           [nums.choices- (filter (lambda (x) (not (and (length=1 (cdr x)) (null? (cadr x))))) nums.choices)]
+           [sorted (sort nums.choices- 
+                         (lambda (x y)
+                           (let ([len1 (length (cdr x))]
+                                 [len2 (length (cdr y))])
+                             (if (= len1 len2)
+                                 (> (length (car (cdr x))) 
+                                    (length (car (cdr y))))
+                                 (< len1 len2)))))]
+           [nums2 (map car sorted)]
+           [choices2 (map cdr sorted)])
+      (update-board board (solve-all choices2 nums2 '())))))
 
 ;;;;;;;;;;; Helper drawing functions ;;;;;;;;;;;;;;;;;;;; 
 (define (square size)
