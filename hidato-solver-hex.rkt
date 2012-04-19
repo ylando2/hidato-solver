@@ -211,7 +211,7 @@
           (only-one-path (cdr choices) (cdr nums)))))
 
 ;;Get list of pairs (start-num . path ) put the numbers of the paths on the board.
-(define (update-board board lst)
+(define (update-board! board lst)
   (for ([e (in-list lst)])
     (let loop ([num (fx+ (car e) 1)]
                [path (cdr e)])
@@ -300,29 +300,29 @@
 ;;One more elimination is to search all the paths that start at a given number
 ;;If there is a number x at position p for all those paths it must be in the solution
 ;;So the program update the board to contain that number.
-(define (update-num-in-all-paths board choices nums)
-  (for ([c (in-list choices)] [n (in-list nums)])
-    (let ([h (make-hash)])
-      (for ([p (in-list c)])
-        (for ([e (in-list p)] [n2 (in-naturals (+ n 1))])
-          (hash-set! h (cons n2 e) (+ (hash-ref h (cons n2 e) 0) 1))))
-      (let ([len (length c)])
-        (for ([(k v) (in-hash h)])
-          (when (= v len) (vector-set! board (cdr k) (car k))))))))
-
+(define (update-num-in-all-paths! board choices nums)
+  (let ([changed? #f])
+    (for ([c (in-list choices)] [n (in-list nums)])
+      (let ([h (make-hash)])
+        (for ([p (in-list c)])
+          (for ([e (in-list p)] [n2 (in-naturals (+ n 1))])
+            (hash-set! h (cons n2 e) (+ (hash-ref h (cons n2 e) 0) 1))))
+        (let ([len (length c)])
+          (for ([(k v) (in-hash h)])
+            (when (= v len) 
+              (vector-set! board (cdr k) (car k))
+              (set! changed? #t))))))
+    changed?))
+  
 ;;Solve the puzzle.   
 (define (solve board max-size)
   (let ([col-num+2 (+ 2 max-size)])
-    (let loop ()
+    (let loop ([e 6])
       (let* ([nums (puzzle-numbers board)]
-             [choices (every-choice board col-num+2 nums 6)]
-             [sol (cdr (solve-one-path choices nums '()))])
-        (unless (null? sol)
-          (update-board board sol)
-          (let* ([nums (puzzle-numbers board)]
-                 [choices (every-choice board col-num+2 nums 6)])
-            (update-num-in-all-paths board choices nums)
-            (loop)))))
+             [choices (every-choice board col-num+2 nums e)]
+             [changed? (update-num-in-all-paths! board choices nums)])
+        (when changed?
+          (loop HOLE)))) 
     (let* ([nums (puzzle-numbers board)] 
            [choices (every-choice board col-num+2 nums HOLE)]
            [nums- (but-last-rec nums)]
@@ -338,7 +338,7 @@
                                  (< len1 len2)))))]
            [nums2 (map car sorted)]
            [choices2 (map cdr sorted)])
-      (update-board board (solve-all choices2 nums2 '())))))
+      (update-board! board (solve-all choices2 nums2 '())))))
 
 ;;;;;;;;;;; Helper drawing functions ;;;;;;;;;;;;;;;;;;;; 
 (define (draw-string str xoff yoff size dc)
